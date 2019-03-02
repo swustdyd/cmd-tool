@@ -9,9 +9,15 @@ exports.desc = '检测package.json的dependencies是否更改，若更改，则�
 
 /**
  * 安装 dependencies
- * @param {string} dir 安装路径
+ * @param {object} params 单参数
+ * @param {string} [params.installPath] 安装路径
+ * @param {'pro' | 'all'} [params.env]
  */
-function installDependencies(installPath) {
+function installDependencies(params) {
+  const {
+    installPath,
+    env = 'all',
+  } = params;
   debug(`installPath: ${installPath}`);
   if (fs.existsSync(path.join(installPath, 'node_modules'))) {
     debug(`remove node_modules ${path.join(installPath, 'node_modules')}`);
@@ -20,7 +26,12 @@ function installDependencies(installPath) {
   shelljs.cd(installPath);
   shelljs.pwd();
   debug(`installPath: ${installPath}`);
-  shelljs.exec('npm install --production', { async: true });
+  const envEnum = {
+    all: '',
+    pro: ' --production',
+  };
+  const envString = envEnum[env];
+  shelljs.exec(`npm install${envString}`, { async: true });
 }
 
 exports.builder = (yargs) => {
@@ -28,6 +39,10 @@ exports.builder = (yargs) => {
     .option('d', {
       alias: 'dir',
       describe: '检查的目录地址(绝对路径)',
+      type: 'string',
+    }).option('e', {
+      alias: 'env',
+      describe: '检查的环境 all、pro',
       type: 'string',
     });
 };
@@ -39,6 +54,7 @@ exports.handler = async (argv) => {
    */
   const {
     dir = process.cwd(),
+    env,
   } = argv;
   debug(`dir: ${dir}`);
   const finalPath = path.join(dir, 'package.json');
@@ -50,7 +66,11 @@ exports.handler = async (argv) => {
   const copyPathOfPackage = path.resolve(__dirname, `../copys/copy_${finalPath.replace(/\//g, '_')}`);
   debug(`copyPathOfPacage: ${copyPathOfPackage}`);
 
-  if (fs.existsSync(copyPathOfPackage)) {
+  let needInstall = false;
+
+  if (!fs.existsSync(path.join(dir, 'node_modules'))) {
+    needInstall = true;
+  } else if (fs.existsSync(copyPathOfPackage)) {
     // 检测是否更改
     const originData = JSON.parse(fs.readFileSync(finalPath));
     const copyData = JSON.parse(fs.readFileSync(copyPathOfPackage));
@@ -62,12 +82,13 @@ exports.handler = async (argv) => {
     } else {
       shelljs.rm(copyPathOfPackage);
       shelljs.cp(finalPath, copyPathOfPackage);
-      installDependencies(dir);
+      installDependencies({ installPath: dir, env });
     }
-  } else {
-    shelljs.cp(finalPath, copyPathOfPackage);
-    if (!fs.existsSync(path.join(dir, 'node_modules'))) {
-      installDependencies(dir);
-    }
+  }
+
+  shelljs.cp(finalPath, copyPathOfPackage);
+
+  if (needInstall) {
+    installDependencies({ installPath: dir, env });
   }
 };
