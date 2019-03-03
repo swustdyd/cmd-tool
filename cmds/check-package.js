@@ -63,6 +63,10 @@ exports.handler = async (argv) => {
     console.error(`'${finalPath}' not exist`);
   }
 
+  if (!path.resolve(__dirname, '../copys')) {
+    shelljs.mkdir('copys');
+  }
+
   const copyPathOfPackage = path.resolve(__dirname, `../copys/copy_${finalPath.replace(/\//g, '_')}`);
   debug(`copyPathOfPacage: ${copyPathOfPackage}`);
 
