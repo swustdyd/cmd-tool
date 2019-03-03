@@ -25,7 +25,6 @@ function installDependencies(params) {
   }
   shelljs.cd(installPath);
   shelljs.pwd();
-  debug(`installPath: ${installPath}`);
   const envEnum = {
     all: '',
     pro: ' --production',
@@ -48,7 +47,7 @@ exports.builder = (yargs) => {
 };
 
 exports.handler = async (argv) => {
-  debug(argv);
+  debug('argv:', argv);
   /**
    * @type {{dir: string}}}
    */
@@ -63,8 +62,11 @@ exports.handler = async (argv) => {
     console.error(`'${finalPath}' not exist`);
   }
 
-  if (!path.resolve(__dirname, '../copys')) {
-    shelljs.mkdir('copys');
+  const copyPath = path.resolve(__dirname, '../copys');
+  debug(`copyPath: ${copyPath}`);
+  if (!fs.existsSync(copyPath)) {
+    debug(`create copys diretory '${copyPath}'`);
+    shelljs.mkdir(copyPath);
   }
 
   const copyPathOfPackage = path.resolve(__dirname, `../copys/copy_${finalPath.replace(/\//g, '_')}`);
