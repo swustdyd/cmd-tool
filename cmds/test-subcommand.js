@@ -1,11 +1,12 @@
-'use strict';
+
 
 const debug = require('debug')('test-subcommand');
 const shelljs = require('shelljs');
-exports.command = [ 'test-subcommand' ];
+
+exports.command = ['test-subcommand'];
 exports.desc = '子命令实现示例';
 
-exports.builder = yargs => {
+exports.builder = (yargs) => {
   yargs
     .option('e', {
       alias: 'env',
@@ -14,6 +15,6 @@ exports.builder = yargs => {
     });
 };
 
-exports.handler = async argv => {
+exports.handler = async (argv) => {
   debug(argv);
 };
