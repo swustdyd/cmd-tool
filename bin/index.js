@@ -1,13 +1,24 @@
 #!/usr/bin/env node
 
-'use strict';
-
 const yargs = require('yargs');
+const fs = require('fs-extra');
+const { runtimeEnv, toolDataPath } = require('../config');
 
-let program = yargs
+if (!fs.existsSync(toolDataPath)) {
+  fs.mkdirp(toolDataPath);
+}
+
+const program = yargs
   .commandDir('../cmds')
   .demandCommand(1, '请至少提供一个命令!')
-  .help('h');
+  .help('h')
+  .option('env', {
+    alias: 'e',
+    describe: `运行时环境，同 process.env.${runtimeEnv}`,
+    choices: ['local', 'staging', 'preview', 'production'],
+    type: 'string',
+    default: process.env[runtimeEnv],
+  });
 
 program.argv;
 
