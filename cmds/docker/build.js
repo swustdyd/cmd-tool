@@ -3,6 +3,7 @@ const shelljs = require('shelljs');
 const path = require('path');
 const fs = require('fs-extra');
 const { rootPath, toolConfigPath } = require('../../config');
+const logger = require('../../lib/logger').getLogger('error');
 
 exports.command = ['build', 'b'];
 exports.desc = 'build docker镜像';
@@ -56,28 +57,21 @@ exports.handler = async (argv) => {
   shelljs.exec(`git clone -o origin -b master https://github.com/swustdyd/cmd-tool.git ${tmpDirName}/cmd-tool`);
   shelljs.cp(toolConfigPath, `${tmpDirName}/toolConfig/index.js`);
 
-  // 停止并移除同名容器
-  const runningContainer = shelljs.echo(`$(docker ps |  grep "${projectName}"  | awk '{print $1}')`).stderr;
-  const allContainer = shelljs.echo(`$(docker images |  grep "${projectName}"  | awk '{print $3}')`).stderr;
-  debug('running container is', runningContainer);
-  debug('all container is', allContainer);
-  if (runningContainer) {
+  try {
+    // 停止并移除同名容器
     shelljs.exec(`docker stop $(docker ps | grep "${projectName}" | awk '{print $1}')`);
-  }
-
-  if (allContainer) {
     shelljs.exec(`docker rm $(docker ps -a | grep "${projectName}" | awk '{print $1}')`);
-  }
 
-  // 移除同名镜像
-  const allImages = shelljs.echo(`$(docker images |  grep "${projectName}"  | awk '{print $3}')`).stderr;
-  debug('all images is', allImages);
-  if (allImages) {
+    // 移除同名镜像
     shelljs.exec(`docker rmi $(docker images |  grep "${projectName}"  | awk '{print $3}')`);
+    shelljs.exec('docker rmi $(docker images |  grep "<none>"  | awk \'{print $3}\')');
+  } catch (error) {
+    logger.error(error);
   }
 
   // build 镜像
   shelljs.exec(`docker build -t ${projectName} .`);
 
-  // shelljs.rm('-rf', tmpDirPath);
+  shelljs.rm('-rf', tmpDirPath);
+  process.exit(0);
 };

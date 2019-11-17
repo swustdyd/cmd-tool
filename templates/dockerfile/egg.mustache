@@ -19,6 +19,15 @@ ENV DYD_CONFIG_PATH /workspace/config
 ENV DYD_WORKSPACE_PATH /workspace
 ENV DYD_RUNTIME_ENV {{env}}
 
+# 复制工具的配置文件、代码，并且全局安装
+RUN mkdir -p /root/.cmd-tool/config
+RUN mkdir -p /root/cmd-tool
+ADD tempDir/toolConfig/index.js  /root/.cmd-tool/config/index.js
+ADD tempDir/cmd-tool/package.json /root/cmd-tool/package.json
+RUN cd /root/cmd-tool && ls -l && npm i --registry=https://registry.npm.taobao.org
+ADD tempDir/cmd-tool/ /root/cmd-tool
+RUN cd /root/cmd-tool && npm i . -g && dydcmd -h
+
 # 拷贝package.json文件到工作目录
 # !!重要：package.json需要单独添加。
 # Docker在构建镜像的时候，是一层一层构建的，仅当这一层有变化时，重新构建对应的层。
@@ -29,15 +38,6 @@ RUN npm i --registry=https://registry.npm.taobao.org
 
 # 添加文件到工作目录下
 ADD ./ /workspace/web/{{name}}/
-
-# 复制工具的配置文件、代码，并且全局安装
-RUN mkdir -p ~/.cmd-tool/config
-RUN mkdir -p ~/cmd-tool
-ADD tempDir/toolConfig/index.js  /root/.cmd-tool/config/index.js
-ADD tempDir/cmd-tool/package.json /root/cmd-tool/package.json
-RUN cd ~/cmd-tool && ls -l && npm i --registry=https://registry.npm.taobao.org
-ADD tempDir/cmd-tool/ /root/cmd-tool
-RUN cd /root/cmd-tool && npm i . -g && dydcmd -h
 
 # 容器对外暴露的端口号
 EXPOSE {{port}}
