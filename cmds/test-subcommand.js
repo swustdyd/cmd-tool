@@ -1,6 +1,6 @@
 
 
-const debug = require('debug')('test-subcommand');
+const debug = require('debug')('cmd-tool:test-subcommand');
 
 exports.command = ['test-subcommand'];
 exports.desc = '子命令实现示例';

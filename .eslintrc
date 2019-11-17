@@ -2,6 +2,8 @@
   "extends": "eslint-config-airbnb",
   "rules": {
     "no-console": "off",
-    "no-underscore-dangle": "off"
+    "no-unused-vars": "off",
+    "no-underscore-dangle": "off",
+    "import/no-dynamic-require": "off"
   }
 }

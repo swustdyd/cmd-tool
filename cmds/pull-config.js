@@ -1,9 +1,23 @@
-const debug = require('debug')('pull-config');
+const debug = require('debug')('cmd-tool:pull-config');
 const chalk = require('chalk');
 const fs = require('fs-extra');
 const inquirer = require('inquirer');
 const { configPath } = require('../config');
 const { serviceBase } = require('../lib/serviceBase');
+
+if (!serviceBase) {
+  console.log(chalk.red('该工具的配置文件, 缺少 pull-config 的配置，请添加'));
+  console.log(chalk.yellow('// example'));
+  console.log(chalk.yellow(`
+    serviceBase: {
+      host: 'your host',
+      port: 'your port',
+      user: 'your username',
+      pwd: 'your password'
+    }
+  `));
+  process.exit(1);
+}
 
 exports.command = ['pull-config'];
 exports.desc = '拉取对应环境的配置';

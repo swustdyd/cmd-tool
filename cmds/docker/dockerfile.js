@@ -1,4 +1,4 @@
-const debug = require('debug')('dockerfile:create');
+const debug = require('debug')('cmd-tool:docker:dockerfile');
 const chalk = require('chalk');
 const fs = require('fs-extra');
 const inquirer = require('inquirer');
@@ -6,8 +6,8 @@ const mustache = require('mustache');
 const { templatePath } = require('../../config');
 
 const dockerfileTemplatePath = templatePath.dockerfile;
-exports.command = ['create', 'c'];
-exports.desc = '创建dockerfile文件';
+exports.command = ['dockerfile', 'df'];
+exports.desc = '创建通用的dockerfile文件';
 
 exports.builder = (yargs) => {
   yargs

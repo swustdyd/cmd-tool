@@ -1,4 +1,4 @@
-const debug = require('debug')('check-dependencies');
+const debug = require('debug')('cmd-tool:check-dependencies');
 const shelljs = require('shelljs');
 const path = require('path');
 const fs = require('fs');

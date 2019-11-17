@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const debug = require('debug')('cmd-tool:*');
 const yargs = require('yargs');
 const fs = require('fs-extra');
 const { runtimeEnv, toolDataPath } = require('../config');
